@@ -1,18 +1,18 @@
-# PX4-Autopilot-with-ROS2-Micro-XRCE-DDS-and-QGroundControl-For-Boat-Setup-Guide
-Welcome! This guide provides step-by-step instructions to set up a simulation environment for [PX4-Autopilot](https://px4.io/) integrated with [ROS2](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html), using [Micro XRCE-DDS](https://docs.px4.io/main/en/middleware/uxrce_dds.html) for communication, and [QGroundControl](https://d176tv9ibo4jno.cloudfront.net/builds/master/QGroundControl-x86_64.AppImage) for monitoring and control. By the end, you’ll have a simulated drone that you can control via ROS2 and monitor with QGroundControl—no hardware required!
+# PX4-Autopilot-with-ROS2-Micro-XRCE-DDS-and-QGroundControl-For-Boat (USV: Unmanned Surface Vehicle)-Setup-Guide
+Welcome! This guide provides step-by-step instructions to set up a simulation environment for [PX4-Autopilot](https://px4.io/) integrated with [ROS2](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html), using [Micro XRCE-DDS](https://docs.px4.io/main/en/middleware/uxrce_dds.html) for communication, and [QGroundControl](https://d176tv9ibo4jno.cloudfront.net/builds/master/QGroundControl-x86_64.AppImage) for monitoring and control. By the end, you’ll have a simulated Boat (USV: Unmanned Surface Vehicle) that you can control via ROS2 and monitor with QGroundControl—no hardware required!
 
 ---
 ## What You’ll Achieve
-- Simulate a drone using PX4’s Software-in-the-Loop (SITL) with Gazebo.
-- Connect PX4 to ROS2 for publishing/subscribing to drone data.
-- Use QGroundControl to visualize and control the simulated drone.
-- Optionally, run an example to control the drone programmatically with ROS2.
-This is perfect for developers, hobbyists, or researchers looking to test drone applications in a simulated environment before moving to real hardware.
+- Simulate a Boat using PX4’s Software-in-the-Loop (SITL) with Gazebo.
+- Connect PX4 to ROS2 for publishing/subscribing to Boat data.
+- Use QGroundControl to visualize and control the simulated Boat.
+- Optionally, run an example to control the Boat programmatically with ROS2.
+This is perfect for developers, hobbyists, or researchers looking to test Boat applications in a simulated environment before moving to real hardware.
 ---
 ## Prerequisites
 Before you begin, ensure you have:
 - Operating System: Ubuntu 22.04 LTS (recommended for compatibility).
-- Hardware: No physical drone needed
+- Hardware: No physical Boat needed
 - Knowledge: Basic familiarity with Linux command-line tools (e.g., apt, git, terminal navigation).
 ---
 ## Setup Instructions
@@ -40,13 +40,28 @@ bash ./Tools/setup/ubuntu.sh
 ```bash
 sudo reboot
 ```
-#### 5. Uninstall Gazebo:
+#### 5. Uninstall Gazebo Harmonic:
+PX4 Gazebo Boat model is available on Gazebo classic.
+```bash
+sudo apt remove gz-harmonic && sudo apt autoremove
+```
+#### 6. Install Gazebo Classic:
+PX4 Gazebo Boat model is available on Gazebo classic.
+```bash
+ curl -sSL http://get.gazebosim.org | sh
+```
+```bash
+gazebo
+```
+Gazebo Classic GUI should launch
+![image](https://github.com/user-attachments/assets/4cd6f5b0-3037-452d-82fa-ec86999e118e)
+Close Gazebo
+#### 7. Reboot to apply changes:
 ```bash
 sudo reboot
 ```
-
 ### Step 2: Install ROS2 Humble
-Add ROS2 Humble to your system for drone control and communication.
+Add ROS2 Humble to your system for control and communication.
 
 #### 1. Install ROS2 Humble:
 ```bash
@@ -73,7 +88,20 @@ echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 ```
 
-### Step 3: Set Up Micro XRCE-DDS
+#### 3. Install Gazebo integration and camera-related ROS2 packages
+```bash
+sudo apt install ros-humble-gazebo-ros-pkgs \
+                 ros-humble-camera-info-manager \
+                 ros-humble-image-common \
+                 ros-humble-image-transport
+```
+#### 4. Some Python dependencies must also be installed (using pip or apt):
+```bash
+pip install --user -U empy==3.3.4 pyros-genmsg setuptools
+sudo apt install python3-colcon-common-extensions
+```
+
+### Step 3: Set Up Micro XRCE-DDS Agent & Client
 Install the Micro XRCE-DDS Agent to bridge PX4 and ROS2.
 
 #### 1. Clone and Build the Agent: (OPTION 1)
@@ -121,14 +149,14 @@ source ~/px4_ros_ws/install/setup.bash
 ```
 
 ### Step 5: Set Up PX4 Simulation with Gazebo
-Launch a simulated drone with PX4 SITL and Gazebo.
+Launch a simulated Boat (USV: Unmanned Surface Vehicle) with PX4 SITL and Gazebo.
 
 #### 1. Run the Simulation:
 ```bash
 cd ~/PX4-Autopilot
-make px4_sitl gz_x500
+make px4_sitl gazebo-classic_boat
 ```
-- You should see Gazebo open with a drone model.
+- You should see Gazebo open with a Boat (USV: Unmanned Surface Vehicle) model.
 
 ### Step 6: Start the Micro XRCE-DDS Agent
 Connect PX4 to ROS2 with the DDS agent.
@@ -155,7 +183,7 @@ ros2 topic list
 - Look for topics like /fmu/out/vehicle_odometry. If you see them, the connection works!
 
 ### Step 8: Install and Set Up QGroundControl
-Monitor your simulated drone with QGroundControl.
+Monitor your simulated Boat with QGroundControl.
 
 #### 1. Download QGroundControl:
 Get the AppImage from the [official site](https://d176tv9ibo4jno.cloudfront.net/builds/master/QGroundControl-x86_64.AppImage).
@@ -163,21 +191,21 @@ Get the AppImage from the [official site](https://d176tv9ibo4jno.cloudfront.net/
 #### 2. Run QGroundControl:
 ```bash
 chmod +x QGroundControl.AppImage
+```
+```bash
 ./QGroundControl.AppImage
 ```
-- Look for topics like /fmu/out/vehicle_odometry. If you see them, the connection works!
 
-#### 3. Connect to the Drone: (Generally get connected automatically)
+#### 3. Connect to the Boat: (Generally get connected automatically)
 
 - Go to Application Settings > Comm Links.
 - Add a new link:
   - Type: UDP
   - Port: 14550
-- Connect to this link to view the drone’s status.
+- Connect to this link to view the Boat’s status.
 
-#### 4. Click on Take OFF and you should see your drone taking off
-![video](https://github.com/user-attachments/assets/48936c56-b588-43d1-b15c-f109df7de422)
-
+#### 4. Click on Take OFF and you should see your Boat taking off
+-------------------------------------------- UPDATE
 ---
 ## Troubleshooting
 ### General Troubleshooting
@@ -187,53 +215,9 @@ chmod +x QGroundControl.AppImage
   - Verify the Micro XRCE-DDS Agent is running and the simulation is active.
 - **QGroundControl not connecting?**
   - Double-check the UDP port (14550) and ensure the simulation is running.
+- **Gazebo crashes at any moment**
+  - sudo killall -9 gazebo gzserver gzclient
  
-### Troubleshooting Graphics Issues in Virtual Machines
-- If you're running Ubuntu in a virtual machine (e.g., VirtualBox, VMware) and encounter errors like:
-```bash
-[GUI] [Err] [Ogre2RenderEngine.cc:1304]  Unable to create the rendering window: OGRE EXCEPTION(3:RenderingAPIException): OpenGL 3.3 is not supported. Please update your graphics card drivers. in GL3PlusRenderSystem::initialiseContext at ./RenderSystems/GL3Plus/src/OgreGL3PlusRenderSystem.cpp (line 3434)
-```
-This error means your VM lacks the necessary graphics support for OpenGL 3.3, which Gazebo's rendering engine requires. Below are two solutions to resolve this issue:
-
-#### Solution: Enable 3D Acceleration in Your VM
-To use the GUI, you’ll need to enable 3D acceleration and ensure your VM has adequate resources. Follow these steps:
-
-1. Check VM Settings:
-- VirtualBox: Open Settings > Display > Screen, check "Enable 3D Acceleration", and set video - memory to at least 128MB.
-- VMware: Go to VM > Settings > Hardware > Display, enable "Accelerate 3D graphics", and allocate at least 128MB of video memory.
-
-2. Install Guest Additions/Tools:
-- VirtualBox: From the menu, select Devices > Insert Guest Additions CD Image, then run:
-```bash
-sudo apt install build-essential dkms
-sudo /media/$USER/VBox_GAs_*/VBoxLinuxAdditions.run
-```
-- VMware: Select VM > Install VMware Tools, extract the downloaded file, and run:
-```bash
-sudo ./vmware-install.pl
-```
-
-3.** Verify OpenGL Version:** After rebooting your VM, check the OpenGL version to ensure it meets the requirement:
-```bash
-glxinfo | grep "OpenGL version"
-```
-- You should see something like: "OpenGL version string: 3.3 (Compatibility Profile) Mesa 21.2.6". It must be 3.3 or higher.
-
-4. **Update Graphics Drivers:** If the OpenGL version is still below 3.3, update your Mesa drivers:
-```bash
-sudo add-apt-repository ppa:kisak/kisak-mesa
-sudo apt update
-sudo apt upgrade
-```
-Reboot the VM and recheck the OpenGL version with the glxinfo command.
-
-5. **Run the Simulation:** Launch the simulation again:
-```bash
-cd PX4-Autopilot/
-LIBGL_ALWAYS_SOFTWARE=1 make px4_sitl gz_x500
-```
-- The Gazebo GUI with drone should now start without errors.
----
 ## Summary
-Congratulations! You’ve set up a fully functional simulation environment with PX4, ROS2, and QGroundControl. This setup is a great starting point for developing and testing drone applications. When you’re ready to move to real hardware, you’ll need to flash PX4 firmware to a flight controller and configure a companion computer—but for now, enjoy experimenting in simulation! <br>
+Congratulations! You’ve set up a fully functional simulation environment with PX4, ROS2, and QGroundControl. This setup is a great starting point for developing and testing Boat applications. When you’re ready to move to real hardware, you’ll need to flash PX4 firmware to a flight controller and configure a companion computer—but for now, enjoy experimenting in simulation! <br>
 Happy flying!
